@@ -23,6 +23,7 @@ Example add-on configuration:
     "ssl": true,
     "certfile": "fullchain.pem",
     "keyfile": "privkey.pem",
+    "servers": [],
     "system_packages": [],
     "init_commands": [],
     "leave_front_door_open": false
@@ -40,6 +41,24 @@ The filename of your SSL Certificate in the `ssl` folder.
 ### Option: `keyfile`
 
 The filename of your Private Key File in the `ssl` folder.
+
+### Option: `servers`
+
+Database servers to register in pgAdmin, so you don't have to add them by hand. The TimescaleDB add-on
+from this repository is registered automatically when it is installed (store add-on hostname
+`77b2833f-timescaledb`, or `local-timescaledb` for a local add-on); use this option for other servers.
+A server is only added when pgAdmin does not have a server with that name yet, so servers you remove or
+rename in pgAdmin stay that way. Passwords cannot be imported: enter them once in pgAdmin and tick "Save password".
+
+```yaml
+servers:
+  - name: Grafana database
+    host: 192.168.1.10
+    port: 5432          # optional, default 5432
+    username: grafana   # optional, default postgres
+    database: grafana   # optional maintenance database, default postgres
+    group: Servers      # optional server group in pgAdmin
+```
 
 ### Option: `system_packages`
 

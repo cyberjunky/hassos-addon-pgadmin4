@@ -28,6 +28,7 @@ options:
   ssl: true
   certfile: fullchain.pem
   keyfile: privkey.pem
+  servers: []
   system_packages: []
   init_commands: []
   leave_front_door_open: false
@@ -35,6 +36,13 @@ schema:
   ssl: bool
   certfile: str
   keyfile: str
+  servers:
+    - name: str
+      host: str
+      port: int?
+      username: str?
+      database: str?
+      group: str?
   system_packages:
     - str
   init_commands:

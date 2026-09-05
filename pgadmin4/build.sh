@@ -1,13 +1,15 @@
 #!/bin/bash
-
+# Builds and pushes the add-on image for all architectures in config.yaml.
+# Requires: docker buildx, yq.
+#
+#   REGISTRY=ghcr.io/<your-user>/pgadmin4 ./build.sh --version dev
 set -e
 
-#sudo apt-get install yq jq
+REGISTRY="${REGISTRY:-ghcr.io/expaso/pgadmin4}"
 
-# Get the archs from the config.yaml file using yq
-archs=linux/$(yq -r '.arch | join(",linux/")' config.yaml)
 # Get the version from the config.yaml file using yq
 version=$(yq -r '.version' config.yaml)
+archs=$(yq -r '.arch[]' config.yaml)
 
 # Parse the arguments, overwrite the defaults
 while [[ $# -gt 0 ]]; do
@@ -29,61 +31,31 @@ while [[ $# -gt 0 ]]; do
     shift
 done
 
-# Print the result
-echo "Building version '$version' for platforms '$archs'"
+echo "Building version '${version}' for architectures: ${archs}"
 
-# error: failed to solve: ghcr.io/hassio-addons/base/armv7:17.2.1: error getting credentials - err: exec: "docker-credential-desktop.exe": executable file not found in $PATH, out: `
-#Solution:
-#In ~/.docker/config.json change credsStore to credStore
-
-# docker run --rm --privileged \
-#     -v ~/.docker:/root/.docker \
-#     -v /var/run/docker.sock:/var/run/docker.sock \
-#     -v ~/hassos-addon-pgadmin4/pgadmin4:/data homeassistant/amd64-builder \
-#     --addon \
-#     --target pgadmin4 \
-#     --all \
-#     --cache-tag cache \
-#     -t /data
-
-# Build and Push
-
-
-for arch in $(yq -r '.arch[]' config.yaml); do
-
-    ##translate the arch to the docker buildx arch
-    case $arch in
-        "aarch64")
-            platform="linux/aarch64"
-            ;;
-        "amd64")
-            platform="linux/amd64"
-            ;;
-        "armhf")
-            platform="linux/armhf"
-            ;;
-        "armv7")
-            platform="linux/arm/v7"
-            ;;
-        "i386")
-            platform="linux/i386"
-            ;;
+for arch in ${archs}; do
+    # Translate the add-on architecture to the docker platform
+    case ${arch} in
+        "aarch64") platform="linux/arm64" ;;
+        "amd64")   platform="linux/amd64" ;;
         *)
-            echo "Unknown architecture: $arch"
+            echo "Unknown architecture: ${arch}"
             exit 1
             ;;
     esac
 
+    build_from=$(yq -r ".build_from.${arch}" build.yaml)
 
-    echo "Building for: $arch"
-    # build the image
+    echo "Building for: ${arch} (${platform}) from ${build_from}"
     docker buildx build \
         --push \
-        --platform $platform \
-        --cache-from type=registry,ref=husselhans/hassos-addon-pgadmin4:cache \
-        --cache-to "type=registry,ref=ghcr.io/expaso/pgadmin4/$arch:edge,mode=max" \
-        --tag "ghcr.io/expaso/pgadmin4/$arch:$version" \
-        --build-arg "BUILD_FROM=ghcr.io/hassio-addons/base/$arch:17.2.1" \
+        --platform "${platform}" \
+        --cache-from "type=registry,ref=${REGISTRY}/${arch}:cache" \
+        --cache-to "type=registry,ref=${REGISTRY}/${arch}:cache,mode=max" \
+        --tag "${REGISTRY}/${arch}:${version}" \
+        --build-arg "BUILD_FROM=${build_from}" \
+        --build-arg "BUILD_ARCH=${arch}" \
+        --build-arg "BUILD_VERSION=${version}" \
         --progress plain \
         .
 done

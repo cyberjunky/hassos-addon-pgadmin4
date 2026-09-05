@@ -14,7 +14,9 @@ CA_FILE = '/etc/ssl/certs/ca-certificates.crt'
 LOG_FILE = '/dev/null'
 HELP_PATH = '../../docs'
 DEFAULT_BINARY_PATHS = {
-        'pg': '/usr/local/pgsql-13'
+        'pg': '/usr/libexec/postgresql18',
+        'pg-18': '/usr/libexec/postgresql18',
+        'pg-17': '/usr/libexec/postgresql17'
 }
 EOF
 

@@ -1,49 +1,49 @@
 # Local development
 
-To build the lastest version using local docker, switch to the folder where the `dockerfile` resides, and run:
+The add-on image is built entirely from `pgadmin4/Dockerfile`: the pgAdmin sources are cloned
+at the tag given by the `PGADMIN_VERSION` build argument (default at the top of the Dockerfile),
+the JS bundle and the Python virtualenv are built in separate stages, and the PostgreSQL
+client tools come from the Alpine packages. No git submodule is needed.
+
+## Build with docker
+
+Switch to the `pgadmin4` folder and run:
 
 ```
-./build.sh
+./build.sh --version dev
 ```
 
-The dockerfile already contains the default build architecture and the default base image:
+which builds and pushes `ghcr.io/expaso/pgadmin4/<arch>:dev` for the architectures in
+`config.yaml`, using the base images from `build.yaml`. Set `REGISTRY` to push to your own
+registry, e.g. when working on a fork:
 
 ```
-ARG BUILD_FROM=ghcr.io/hassio-addons/base/aarch64:17.2.1
-ARG BUILD_ARCH=aarch64
+REGISTRY=ghcr.io/<your-user>/pgadmin4 ./build.sh --version dev
 ```
 
-This can also be done by passing the build-arguments by the commandline:
+A single architecture can also be built directly:
 
 ```
-docker build --tag ghcr.io/expaso/pgadmin4/armv7:dev . --build-arg BUILD_FROM=ghcr.io/hassio-addons/base/armv7:17.2.1
+docker buildx build --platform linux/amd64 \
+    --build-arg BUILD_FROM=ghcr.io/hassio-addons/base/amd64:20.2.0 \
+    --build-arg BUILD_ARCH=amd64 \
+    --tag ghcr.io/expaso/pgadmin4/amd64:dev .
 ```
 
-Hereafter, you can push the image to dockerhub using cmd of docker desktop for testing purposes.
+## Build with GitHub Actions
 
-## Build using Home Asssitant Builder
+The `Build add-on (dev)` workflow (`workflow_dispatch`) builds the image for the selected
+architectures and pushes it to `ghcr.io/<repository owner>/pgadmin4/<arch>:<tag>`. This also works
+from a fork, which makes it easy to test a branch on a Home Assistant machine: create a local
+add-on folder in `/addons` with a `config.yaml` whose `image` points at that registry.
 
-To build the latest version using the HomeAssistant Addon Builder container, for `aarch64 architecture` for example, run:
+## Upgrading pgAdmin
 
-```
-docker run --rm --privileged \
-    -v ~/.docker:/root/.docker \
-    -v /var/run/docker.sock:/var/run/docker.sock \
-    -v ~/hassos-addon-pgadmin4/pgadmin4:/data homeassistant/amd64-builder \
-    --addon \
-    --target pgadmin4 \
-    --aarch64 \
-    --cache-tag cache \
-    -t /data
-```
+Bump `PGADMIN_VERSION` in `pgadmin4/Dockerfile` (and the version header in `.README.j2`).
+Check the release notes for changes in the supported PostgreSQL versions; the bundled client
+tools are the Alpine `postgresql<major>-client` packages listed in the Dockerfile.
 
-This will use the base images from the `build.json` file, and the architecture specified. Use `--all` instead of `--aarch64` to build all architectures within the `config.json`for example.
-
-## Push latest DEV image to repository
-
-docker image push ghcr.io/expaso/pgadmin4/aarch64:dev
-
-## Run the addon with an interactive shell
+## Run the add-on with an interactive shell
 
 From a system SSH (port 22222), run the docker container with data attached:
 

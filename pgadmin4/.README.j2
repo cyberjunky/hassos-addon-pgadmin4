@@ -4,15 +4,17 @@
 
 # Home Assistant Add-on: [pgAdmin 4](https://www.pgadmin.org/)
 
+## [pgAdmin 4 v9.17](https://www.pgadmin.org/docs/pgadmin4/9.17/release_notes_9_17.html) with the PostgreSQL 17 and 18 client tools
+
 <a href="https://www.buymeacoffee.com/expaso" target="_blank"><img src="https://cdn.buymeacoffee.com/buttons/default-orange.png" alt="Buy Me A Coffee" height="41" width="174"></a>
 
 ## Introduction
 
 pgAdmin is the most popular and feature rich Open Source administration and development platform for PostgreSQL, the most advanced Open Source database in the world.
 
-This Add-on can be used to control any postgreSQL databases on your network, incuding those served the TimescaleDB add-on, which can also install from the same addon-repository.
+This Add-on can be used to control any postgreSQL databases on your network, including those served by the TimescaleDB add-on, which you can also install from the same add-on repository.
 
-## Configuation
+## Configuration
 
 Example add-on configuration:
 
@@ -29,13 +31,13 @@ Example add-on configuration:
 
 ### Option: `ssl`
 
-Indicates if the add-on UI will be servd from port 80 or port 443 (using the provided certificates).
+Indicates if the add-on UI will be served from port 80 or port 443 (using the provided certificates).
 
 ### Option: `certfile`
 
 The filename of your SSL Certificate in the `ssl` folder.
 
-### Option: `certfile`
+### Option: `keyfile`
 
 The filename of your Private Key File in the `ssl` folder.
 
@@ -112,4 +114,4 @@ If you are more interested in stable releases, use the stable repository:
 [release-shield]: https://img.shields.io/badge/version-{{ version }}-blue.svg
 [release]: {{ repo }}/tree/{{ version }}
 [license-shield]: https://img.shields.io/github/license/expaso/hassos-addon-{{ name }}.svg
-[maintenance-shield]: https://img.shields.io/maintenance/yes/2024.svg
+[maintenance-shield]: https://img.shields.io/maintenance/yes/2026.svg

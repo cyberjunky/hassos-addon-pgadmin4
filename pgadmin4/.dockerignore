@@ -1,11 +1,8 @@
 .git
 .vscode
-web/node_modules
-web/*.log
-web/regression
-web/**/tests/
-official-pgadmin4/web/node_modules
-official-pgadmin4/web/*.log
-official-pgadmin4/web/regression
-official-pgadmin4/web/**/tests/
 .DS_Store
+build.sh
+build.yaml
+config.yaml
+.README.j2
+*.md

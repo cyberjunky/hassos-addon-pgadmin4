@@ -194,8 +194,8 @@ COPY --from=app-builder /pgadmin4/web /pgadmin4
 COPY --from=docs-builder /pgadmin4/docs/en_US/_build/html/ /pgadmin4/docs
 COPY --from=source /pgadmin4/pkg/docker/run_pgadmin.py /pgadmin4/pkg/docker/gunicorn_config.py /pgadmin4/
 
-# License files
-COPY --from=source /pgadmin4/LICENSE /pgadmin4/DEPENDENCIES /pgadmin4/
+# License file
+COPY --from=source /pgadmin4/LICENSE /pgadmin4/
 
 RUN --mount=type=cache,id=pip-${TARGETARCH}-${TARGETVARIANT},sharing=locked,target=/root/.cache \
         /venv/bin/python3 -m pip install gunicorn==23.0.0

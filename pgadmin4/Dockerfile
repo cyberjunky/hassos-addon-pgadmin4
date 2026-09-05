@@ -42,7 +42,7 @@ RUN apk add --no-cache git \
 # hadolint ignore=DL3029
 FROM --platform=$BUILDPLATFORM alpine:${ALPINE_VERSION} AS app-builder
 
-# hadolint ignore=DL3018
+# hadolint ignore=DL3018, DL3019
 RUN --mount=type=cache,id=apk-builder,sharing=locked,target=/var/cache/apk \
     apk add \
         autoconf \
@@ -81,7 +81,7 @@ RUN --mount=type=bind,from=source,source=/pgadmin4/.git,target=/pgadmin4/.git \
     yarn run bundle && \
     rm -rf yarn.lock \
            package.json \
-           .[^.]* \
+           .[!.]* \
            babel.cfg \
            webpack.* \
            jest.config.js \
@@ -94,7 +94,7 @@ FROM alpine:${ALPINE_VERSION} AS env-builder
 ARG TARGETARCH
 ARG TARGETVARIANT
 
-# hadolint ignore=DL3018
+# hadolint ignore=DL3018, DL3019
 RUN --mount=type=cache,id=apk-${TARGETARCH}-${TARGETVARIANT},sharing=locked,target=/var/cache/apk \
         apk add \
             make \
@@ -200,7 +200,6 @@ COPY --from=source /pgadmin4/LICENSE /pgadmin4/
 RUN --mount=type=cache,id=pip-${TARGETARCH}-${TARGETVARIANT},sharing=locked,target=/root/.cache \
         /venv/bin/python3 -m pip install gunicorn==23.0.0
 
-# hadolint ignore=SC2012
 RUN     useradd -r -u 5050 -g root -s /sbin/nologin pgadmin && \
         mkdir -p /run/pgadmin /var/lib/pgadmin && \
         chown pgadmin:root /run/pgadmin /var/lib/pgadmin && \
@@ -209,7 +208,7 @@ RUN     useradd -r -u 5050 -g root -s /sbin/nologin pgadmin && \
         chown pgadmin:root /pgadmin4/config_distro.py && \
         chmod g=u /pgadmin4/config_distro.py && \
         chmod g=u /etc/passwd && \
-        PYBIN="$(ls /usr/bin/python3.[0-9][0-9] 2>/dev/null | head -n1)" && \
+        PYBIN="$(readlink -f /usr/bin/python3)" && \
         setcap CAP_NET_BIND_SERVICE=+eip "${PYBIN}" && \
         echo "pgadmin ALL = NOPASSWD: /usr/sbin/postfix start" > /etc/sudoers.d/postfix && \
         echo "pgadminr ALL = NOPASSWD: /usr/sbin/postfix start" >> /etc/sudoers.d/postfix

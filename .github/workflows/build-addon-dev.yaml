@@ -78,7 +78,10 @@ jobs:
           file: pgadmin4/Dockerfile
           platforms: ${{ matrix.platform }}
           push: true
-          tags: ghcr.io/${{ github.repository_owner }}/pgadmin4/${{ matrix.arch }}:${{ inputs.tag }}
+          # Also tag with the commit, so a test installation can pin exactly this build
+          tags: |
+            ghcr.io/${{ github.repository_owner }}/pgadmin4/${{ matrix.arch }}:${{ inputs.tag }}
+            ghcr.io/${{ github.repository_owner }}/pgadmin4/${{ matrix.arch }}:${{ inputs.tag }}-${{ github.sha }}
           build-args: |
             BUILD_FROM=${{ steps.base.outputs.build_from }}
             BUILD_ARCH=${{ matrix.arch }}
